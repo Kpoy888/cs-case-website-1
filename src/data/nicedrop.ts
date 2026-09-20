@@ -36,6 +36,18 @@ export const rarityArt: Record<Rarity, string> = {
   live: 'https://cdn.poehali.dev/projects/0b443350-d3d4-41fe-b9ec-80fe1148da82/files/44a8b1ca-2337-4c58-9c60-dd5c26619526.jpg',
 };
 
+/** Цвет рамки предмета по редкости Steam. */
+export const rarityColor = (steamRarity?: string): string => {
+  const r = (steamRarity || '').toLowerCase();
+  if (r.includes('contraband')) return '44 92% 50%';
+  if (r.includes('covert') || r.includes('extraordinary')) return '0 72% 55%';
+  if (r.includes('classified') || r.includes('remarkable')) return '295 60% 58%';
+  if (r.includes('restricted') || r.includes('exotic')) return '260 60% 62%';
+  if (r.includes('mil-spec') || r.includes('high grade')) return '220 72% 58%';
+  if (r.includes('industrial')) return '200 55% 62%';
+  return '0 0% 62%';
+};
+
 export const rarityVar: Record<Rarity, string> = {
   glow: 'var(--glow)',
   rare: 'var(--rare)',
@@ -73,7 +85,7 @@ export const cases: CaseItem[] = [
     odds: 'шанс ножа 3.4%',
     price: 129,
     category: 'cheap',
-    drops: ['Desert Eagle · Blaze', 'AK-47 · Redline', 'Nova · Hyper Beast', 'Five-SeveN · Hot Rod'],
+    drops: ['Desert Eagle · Blaze', 'AK-47 · Redline', 'Nova · Hyper Beast', 'Five-SeveN · Monkey Business'],
   },
   {
     id: 'rookie',
@@ -113,7 +125,7 @@ export const cases: CaseItem[] = [
     odds: 'шанс Deagle 18%',
     price: 89,
     category: 'pistols',
-    drops: ['Glock · Fade', 'USP-S · Neo-Noir', 'P250 · See Ya Later', 'CZ75 · Yellow Jacket'],
+    drops: ['Glock · Fade', 'USP-S · Neo-Noir', 'P250 · See Ya Later', 'CZ75-Auto · Yellow Jacket'],
   },
   {
     id: 'vertigo',
