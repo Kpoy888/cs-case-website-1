@@ -34,13 +34,17 @@ const OpenCaseDialog = ({ item, onClose }: Props) => {
       return;
     }
     spend(item.price);
-    setPrize(item.drops[Math.floor(Math.random() * item.drops.length)]);
 
     const lucky = Math.random() < 0.1;
-    const value = lucky
-      ? Math.round(220 + Math.random() * Math.max(400, item.price * 6))
-      : Math.round(30 + Math.random() * 170);
-    setPrizeValue(value);
+    const pool = item.drops.filter((d) => {
+      const price = skinArt[d]?.price ?? 0;
+      return lucky ? price > 200 : price <= 200;
+    });
+    const source = pool.length ? pool : item.drops;
+    const won = source[Math.floor(Math.random() * source.length)];
+
+    setPrize(won);
+    setPrizeValue(skinArt[won]?.price ?? item.price);
     setPhase('spin');
   };
 
@@ -88,6 +92,9 @@ const OpenCaseDialog = ({ item, onClose }: Props) => {
                       <img src={s?.img} alt={d} loading="lazy" className="h-12 object-contain" />
                       <span className="mt-1 w-full truncate text-[10px] font-bold text-muted-foreground">
                         {d.replace(' · ', ' ')}
+                      </span>
+                      <span className="text-[10px] font-extrabold text-primary">
+                        {formatMoney(s?.price ?? 0)}
                       </span>
                     </div>
                   );

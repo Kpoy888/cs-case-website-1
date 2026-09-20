@@ -65,7 +65,7 @@ export const cases: CaseItem[] = [
     price: 349,
     category: 'premium',
     lead: true,
-    drops: ['Karambit · Fade', 'AK-47 · Fire Serpent', 'Desert Eagle · Blaze', 'USP-S · Kill Confirmed'],
+    drops: ['Karambit · Fade', 'AK-47 · Fire Serpent', 'Desert Eagle · Blaze', 'USP-S · Kill Confirmed', 'P250 · Sand Dune', 'MP9 · Storm', 'Nova · Predator', 'MAC-10 · Candy Apple'],
   },
   {
     id: 'night-ops',
@@ -75,7 +75,7 @@ export const cases: CaseItem[] = [
     odds: 'шанс ножа 2.1%',
     price: 199,
     category: 'cheap',
-    drops: ['M4A1-S · Printstream', 'Glock · Fade', 'MP9 · Starlight', 'P250 · Asiimov'],
+    drops: ['M4A1-S · Printstream', 'Glock · Fade', 'MP9 · Starlight', 'P250 · Asiimov', 'MAC-10 · Candy Apple', 'SG 553 · Waves Perforated', 'P90 · Facility Negative', 'Galil AR · Sage Spray'],
   },
   {
     id: 'blaze-drop',
@@ -85,7 +85,7 @@ export const cases: CaseItem[] = [
     odds: 'шанс ножа 3.4%',
     price: 129,
     category: 'cheap',
-    drops: ['Desert Eagle · Blaze', 'AK-47 · Redline', 'Nova · Hyper Beast', 'Five-SeveN · Monkey Business'],
+    drops: ['Desert Eagle · Blaze', 'AK-47 · Redline', 'Nova · Hyper Beast', 'Five-SeveN · Monkey Business', 'Galil AR · Sage Spray', 'Tec-9 · Army Mesh', 'UMP-45 · Gunsmoke', 'MP7 · Forest DDPAT'],
   },
   {
     id: 'rookie',
@@ -95,7 +95,7 @@ export const cases: CaseItem[] = [
     odds: 'шанс ножа 0.8%',
     price: 49,
     category: 'cheap',
-    drops: ['P90 · Asiimov', 'MP7 · Bloodsport', 'Tec-9 · Fuel Injector', 'UMP-45 · Primal Saber'],
+    drops: ['P90 · Asiimov', 'MP7 · Bloodsport', 'Tec-9 · Fuel Injector', 'UMP-45 · Primal Saber', 'MP7 · Forest DDPAT', 'Five-SeveN · Forest Night', 'AK-47 · Safari Mesh', 'AWP · Safari Mesh'],
   },
   {
     id: 'knife-only',
@@ -105,7 +105,7 @@ export const cases: CaseItem[] = [
     odds: 'шанс ножа 9.5%',
     price: 899,
     category: 'knives',
-    drops: ['Butterfly · Doppler', 'Karambit · Fade', 'Bayonet · Tiger Tooth', 'Talon · Marble Fade'],
+    drops: ['Butterfly · Doppler', 'Karambit · Fade', 'Bayonet · Tiger Tooth', 'Talon · Marble Fade', 'AWP · Safari Mesh', 'USP-S · Forest Leaves', 'P250 · Sand Dune', 'MP9 · Storm'],
   },
   {
     id: 'dragon-case',
@@ -115,7 +115,7 @@ export const cases: CaseItem[] = [
     odds: 'шанс AWP 12%',
     price: 459,
     category: 'snipers',
-    drops: ['AWP · Dragon Lore', 'AWP · Asiimov', 'SSG 08 · Blood in the Water', 'SCAR-20 · Emerald'],
+    drops: ['AWP · Dragon Lore', 'AWP · Asiimov', 'SSG 08 · Blood in the Water', 'SCAR-20 · Emerald', 'MP9 · Storm', 'Nova · Predator', 'MAC-10 · Candy Apple', 'SG 553 · Waves Perforated'],
   },
   {
     id: 'pistol-run',
@@ -125,7 +125,7 @@ export const cases: CaseItem[] = [
     odds: 'шанс Deagle 18%',
     price: 89,
     category: 'pistols',
-    drops: ['Glock · Fade', 'USP-S · Neo-Noir', 'P250 · See Ya Later', 'CZ75-Auto · Yellow Jacket'],
+    drops: ['Glock · Fade', 'USP-S · Neo-Noir', 'P250 · See Ya Later', 'CZ75-Auto · Yellow Jacket', 'SG 553 · Waves Perforated', 'P90 · Facility Negative', 'Galil AR · Sage Spray', 'Tec-9 · Army Mesh'],
   },
   {
     id: 'vertigo',
@@ -135,7 +135,7 @@ export const cases: CaseItem[] = [
     odds: 'шанс ножа 5.6%',
     price: 279,
     category: 'knives',
-    drops: ['Falchion · Doppler', 'Shadow Daggers · Fade', 'AK-47 · Vulcan', 'M4A4 · Neo-Noir'],
+    drops: ['Falchion · Doppler', 'Shadow Daggers · Fade', 'AK-47 · Vulcan', 'M4A4 · Neo-Noir', 'Tec-9 · Army Mesh', 'UMP-45 · Gunsmoke', 'MP7 · Forest DDPAT', 'Five-SeveN · Forest Night'],
   },
   {
     id: 'sniper-elite',
@@ -145,7 +145,7 @@ export const cases: CaseItem[] = [
     odds: 'шанс AWP 21%',
     price: 649,
     category: 'snipers',
-    drops: ['AWP · Gungnir', 'AWP · Medusa', 'AWP · Wildfire', 'G3SG1 · Chronos'],
+    drops: ['AWP · Gungnir', 'AWP · Medusa', 'AWP · Wildfire', 'G3SG1 · Chronos', 'Five-SeveN · Forest Night', 'AK-47 · Safari Mesh', 'AWP · Safari Mesh', 'USP-S · Forest Leaves'],
   },
   {
     id: 'street-money',
@@ -155,7 +155,7 @@ export const cases: CaseItem[] = [
     odds: 'шанс Deagle 9%',
     price: 159,
     category: 'pistols',
-    drops: ['Deagle · Code Red', 'R8 · Fade', 'Dual Berettas · Cobra', 'P2000 · Fire Elemental'],
+    drops: ['Deagle · Code Red', 'R8 · Fade', 'Dual Berettas · Cobra', 'P2000 · Fire Elemental', 'USP-S · Forest Leaves', 'P250 · Sand Dune', 'MP9 · Storm', 'Nova · Predator'],
   },
   {
     id: 'royal',
@@ -165,7 +165,7 @@ export const cases: CaseItem[] = [
     odds: 'шанс ножа 14%',
     price: 1290,
     category: 'premium',
-    drops: ['Karambit · Doppler Sapphire', 'AWP · Dragon Lore', 'M9 Bayonet · Crimson Web', 'AK-47 · Wild Lotus'],
+    drops: ['Karambit · Doppler Sapphire', 'AWP · Dragon Lore', 'M9 Bayonet · Crimson Web', 'AK-47 · Wild Lotus', 'Nova · Predator', 'MAC-10 · Candy Apple', 'SG 553 · Waves Perforated', 'P90 · Facility Negative'],
   },
   {
     id: 'clutch',
@@ -175,7 +175,7 @@ export const cases: CaseItem[] = [
     odds: 'шанс ножа 1.4%',
     price: 99,
     category: 'cheap',
-    drops: ['M4A4 · Howl', 'AK-47 · Bloodsport', 'MAC-10 · Neon Rider', 'Galil · Chatterbox'],
+    drops: ['M4A4 · Howl', 'AK-47 · Bloodsport', 'MAC-10 · Neon Rider', 'Galil · Chatterbox', 'P90 · Facility Negative', 'Galil AR · Sage Spray', 'Tec-9 · Army Mesh', 'UMP-45 · Gunsmoke'],
   },
 ];
 

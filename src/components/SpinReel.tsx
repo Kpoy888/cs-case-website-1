@@ -1,6 +1,7 @@
 import { CSSProperties, useEffect, useMemo, useRef, useState } from 'react';
 import { skinArt } from '@/data/skins';
 import { rarityColor } from '@/data/nicedrop';
+import { formatMoney } from '@/hooks/use-balance';
 
 const ITEM_W = 132;
 const VISIBLE = 5;
@@ -82,6 +83,9 @@ const SpinReel = ({ pool, prize, spinning, onDone }: Props) => {
               </div>
               <div className="mt-1.5 w-full truncate text-center text-[10px] font-bold text-muted-foreground">
                 {name.replace(' · ', ' ')}
+              </div>
+              <div className="text-[10px] font-extrabold text-primary">
+                {formatMoney(skin?.price ?? 0)}
               </div>
             </div>
           );
