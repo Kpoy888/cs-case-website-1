@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Icon from '@/components/ui/icon';
+import CardPaymentDialog from '@/components/CardPaymentDialog';
 import { toast } from '@/hooks/use-toast';
 import { topUpMethods } from '@/data/nicedrop';
 import { formatMoney, useBalance } from '@/hooks/use-balance';
@@ -11,6 +12,7 @@ const TopUp = () => {
   const [method, setMethod] = useState('card');
   const [amount, setAmount] = useState('5000');
   const [error, setError] = useState('');
+  const [payOpen, setPayOpen] = useState(false);
 
   const num = Number(amount.replace(/\s/g, ''));
   const bonus = num >= 2000 ? 0.25 : num >= 300 ? 0.15 : 0;
@@ -31,6 +33,16 @@ const TopUp = () => {
       return;
     }
     setError('');
+
+    if (method === 'card') {
+      setPayOpen(true);
+      return;
+    }
+
+    credit();
+  };
+
+  const credit = () => {
     topUp(total);
     toast({
       title: 'Баланс пополнен',
@@ -136,7 +148,7 @@ const TopUp = () => {
             type="submit"
             className="mt-5 w-full rounded-full bg-primary py-3.5 font-display text-lg tracking-[.03em] text-primary-foreground shadow-[0_8px_26px_hsl(var(--primary)/0.28)] transition-transform hover:scale-[1.01]"
           >
-            Пополнить на {formatMoney(total || 0)}
+            {method === 'card' ? 'Получить реквизиты' : `Пополнить на ${formatMoney(total || 0)}`}
           </button>
         </form>
 
@@ -179,6 +191,17 @@ const TopUp = () => {
           </div>
         </aside>
       </div>
+
+      <CardPaymentDialog
+        open={payOpen}
+        amount={num || 0}
+        total={total || 0}
+        onClose={() => setPayOpen(false)}
+        onPaid={() => {
+          setPayOpen(false);
+          credit();
+        }}
+      />
     </section>
   );
 };
