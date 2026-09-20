@@ -35,7 +35,12 @@ const OpenCaseDialog = ({ item, onClose }: Props) => {
     }
     spend(item.price);
     setPrize(item.drops[Math.floor(Math.random() * item.drops.length)]);
-    setPrizeValue(Math.round(item.price * (0.4 + Math.random() * 4)));
+
+    const lucky = Math.random() < 0.1;
+    const value = lucky
+      ? Math.round(220 + Math.random() * Math.max(400, item.price * 6))
+      : Math.round(30 + Math.random() * 170);
+    setPrizeValue(value);
     setPhase('spin');
   };
 
