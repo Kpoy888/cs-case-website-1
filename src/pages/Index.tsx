@@ -1,55 +1,39 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import LiveTicker from '@/components/LiveTicker';
 import CategorySidebar from '@/components/CategorySidebar';
 import CaseGrid from '@/components/CaseGrid';
 import OpenCaseDialog from '@/components/OpenCaseDialog';
-import TopPlayers from '@/components/TopPlayers';
-import TopUp from '@/components/TopUp';
-import Bonuses, { BonusesHandle } from '@/components/Bonuses';
-import FaqSupport from '@/components/FaqSupport';
 import Footer from '@/components/Footer';
-import { BalanceProvider } from '@/hooks/use-balance';
 import { CaseItem, CategoryId } from '@/data/nicedrop';
 
-const IndexContent = () => {
+const Index = () => {
   const [category, setCategory] = useState<CategoryId>('all');
   const [openCase, setOpenCase] = useState<CaseItem | null>(null);
-  const bonusesRef = useRef<BonusesHandle>(null);
-
-  const goPromo = () => {
-    document.getElementById('bonuses')?.scrollIntoView({ behavior: 'smooth' });
-    setTimeout(() => bonusesRef.current?.focusInput('NICE15'), 500);
-  };
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-background text-foreground">
       <div className="px-4 pb-5 pt-3.5 sm:px-[18px]">
-        {/* Первый экран: nav / side + grid — сетка выбранного варианта */}
-        <section
-          id="cases"
-          className="hero-shell scroll-mt-4"
-        >
+        <section id="cases" className="hero-shell scroll-mt-4">
           <div className="hero-nav">
             <Header />
             <LiveTicker />
           </div>
 
           <div className="hero-side min-h-0">
-            <CategorySidebar active={category} onChange={setCategory} onPromo={goPromo} />
+            <CategorySidebar
+              active={category}
+              onChange={setCategory}
+              onPromo={() => navigate('/bonuses')}
+            />
           </div>
 
           <div className="hero-grid min-h-0">
             <CaseGrid category={category} onOpen={setOpenCase} />
           </div>
         </section>
-
-        <div className="mt-16 flex flex-col gap-16 sm:mt-20 sm:gap-20">
-          <TopPlayers />
-          <TopUp />
-          <Bonuses ref={bonusesRef} />
-          <FaqSupport />
-        </div>
 
         <Footer />
       </div>
@@ -58,11 +42,5 @@ const IndexContent = () => {
     </div>
   );
 };
-
-const Index = () => (
-  <BalanceProvider>
-    <IndexContent />
-  </BalanceProvider>
-);
 
 export default Index;

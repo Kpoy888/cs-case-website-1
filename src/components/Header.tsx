@@ -1,45 +1,20 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
 import { navLinks } from '@/data/nicedrop';
 import { formatMoney, useBalance } from '@/hooks/use-balance';
 
-const scrollTo = (id: string) => {
-  const el = document.getElementById(id);
-  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-};
-
 const Header = () => {
   const { balance } = useBalance();
   const [open, setOpen] = useState(false);
-  const [active, setActive] = useState('cases');
-
-  useEffect(() => {
-    const obs = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) setActive(e.target.id);
-        });
-      },
-      { rootMargin: '-45% 0px -50% 0px' },
-    );
-    navLinks.forEach((l) => {
-      const el = document.getElementById(l.id);
-      if (el) obs.observe(el);
-    });
-    return () => obs.disconnect();
-  }, []);
-
-  const go = (id: string) => {
-    setOpen(false);
-    scrollTo(id);
-  };
+  const navigate = useNavigate();
 
   return (
     <header>
       <div className="flex items-center gap-6 border-b border-border px-1.5 pb-3">
-        <button
-          onClick={() => go('cases')}
-          className="flex items-baseline gap-2.5 shrink-0"
+        <Link
+          to="/"
+          className="flex shrink-0 items-baseline gap-2.5"
           aria-label="Nicedrop — на главную"
         >
           <span className="font-display text-[1.55em] leading-none tracking-[.02em] text-foreground">
@@ -48,19 +23,22 @@ const Header = () => {
           <span className="hidden text-[.62em] font-bold uppercase tracking-[.22em] text-muted-foreground sm:block">
             CS2 CASES
           </span>
-        </button>
+        </Link>
 
         <ul className="ml-2 hidden gap-6 lg:flex">
           {navLinks.map((l) => (
             <li key={l.id}>
-              <button
-                onClick={() => go(l.id)}
-                className={`text-[.88em] font-bold transition-colors hover:text-foreground ${
-                  active === l.id ? 'text-foreground' : 'text-muted-foreground'
-                }`}
+              <NavLink
+                to={l.path}
+                end={l.path === '/'}
+                className={({ isActive }) =>
+                  `text-[.88em] font-bold transition-colors hover:text-foreground ${
+                    isActive ? 'text-foreground' : 'text-muted-foreground'
+                  }`
+                }
               >
                 {l.label}
-              </button>
+              </NavLink>
             </li>
           ))}
         </ul>
@@ -71,7 +49,7 @@ const Header = () => {
             <span className="tabular-nums">{formatMoney(balance)}</span>
           </div>
           <button
-            onClick={() => go('topup')}
+            onClick={() => navigate('/topup')}
             className="rounded-full bg-primary px-5 py-2.5 font-display text-[.95em] tracking-[.03em] text-primary-foreground shadow-[0_8px_26px_hsl(var(--primary)/0.28)] transition-transform hover:scale-105"
           >
             Пополнить
@@ -89,14 +67,16 @@ const Header = () => {
       {open && (
         <nav className="mt-3 animate-fade-in rounded-2xl border border-border bg-card p-2 lg:hidden">
           {navLinks.map((l) => (
-            <button
+            <NavLink
               key={l.id}
-              onClick={() => go(l.id)}
+              to={l.path}
+              end={l.path === '/'}
+              onClick={() => setOpen(false)}
               className="flex w-full items-center justify-between rounded-xl px-4 py-3 text-left text-[.95em] font-bold text-muted-foreground hover:bg-secondary hover:text-foreground"
             >
               {l.label}
               <Icon name="ChevronRight" size={16} />
-            </button>
+            </NavLink>
           ))}
         </nav>
       )}

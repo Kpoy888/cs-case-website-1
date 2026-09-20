@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
 import { navLinks } from '@/data/nicedrop';
 
@@ -20,14 +21,12 @@ const Footer = () => (
         <ul className="space-y-2">
           {navLinks.map((l) => (
             <li key={l.id}>
-              <button
-                onClick={() =>
-                  document.getElementById(l.id)?.scrollIntoView({ behavior: 'smooth' })
-                }
+              <Link
+                to={l.path}
                 className="text-[.82em] font-bold text-muted-foreground transition-colors hover:text-primary"
               >
                 {l.label}
-              </button>
+              </Link>
             </li>
           ))}
         </ul>

@@ -1,4 +1,5 @@
 import { CSSProperties, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
 import SpinReel from '@/components/SpinReel';
@@ -18,6 +19,7 @@ const OpenCaseDialog = ({ item, onClose }: Props) => {
   const [phase, setPhase] = useState<Phase>('confirm');
   const [prize, setPrize] = useState<string>('');
   const [prizeValue, setPrizeValue] = useState(0);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (item) {
@@ -178,7 +180,7 @@ const OpenCaseDialog = ({ item, onClose }: Props) => {
               <button
                 onClick={() => {
                   onClose();
-                  document.getElementById('topup')?.scrollIntoView({ behavior: 'smooth' });
+                  navigate('/topup');
                 }}
                 className="mt-5 w-full rounded-full bg-primary px-6 py-3 font-display text-lg tracking-[.03em] text-primary-foreground"
               >

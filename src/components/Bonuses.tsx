@@ -1,26 +1,14 @@
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import Icon from '@/components/ui/icon';
 import { toast } from '@/hooks/use-toast';
 import { promos } from '@/data/nicedrop';
 import { useBalance } from '@/hooks/use-balance';
 
-export interface BonusesHandle {
-  focusInput: (code?: string) => void;
-}
-
-const Bonuses = forwardRef<BonusesHandle>((_, ref) => {
+const Bonuses = () => {
   const { activatePromo, activated } = useBalance();
   const [code, setCode] = useState('');
   const [error, setError] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
-
-  useImperativeHandle(ref, () => ({
-    focusInput: (preset) => {
-      if (preset) setCode(preset);
-      setError('');
-      inputRef.current?.focus();
-    },
-  }));
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -116,8 +104,6 @@ const Bonuses = forwardRef<BonusesHandle>((_, ref) => {
       </div>
     </section>
   );
-});
-
-Bonuses.displayName = 'Bonuses';
+};
 
 export default Bonuses;
