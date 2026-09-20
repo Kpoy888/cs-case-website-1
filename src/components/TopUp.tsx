@@ -5,7 +5,7 @@ import { toast } from '@/hooks/use-toast';
 import { topUpMethods } from '@/data/nicedrop';
 import { formatMoney, useBalance } from '@/hooks/use-balance';
 
-const presets = [1000, 3000, 5000, 10000, 25000, 50000];
+const presets = [100, 500, 1000, 5000, 10000, 25000];
 
 const TopUp = () => {
   const { balance, topUp } = useBalance();
@@ -24,8 +24,8 @@ const TopUp = () => {
       setError('Введите сумму пополнения');
       return;
     }
-    if (num < 50) {
-      setError('Минимальная сумма пополнения — 50 ₽');
+    if (num < 100) {
+      setError('Минимальная сумма пополнения — 100 ₽');
       return;
     }
     if (num > 100000) {
