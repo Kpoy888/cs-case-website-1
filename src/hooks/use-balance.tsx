@@ -17,7 +17,7 @@ const PROMO_BONUS: Record<string, number> = {
 };
 
 export const BalanceProvider = ({ children }: { children: React.ReactNode }) => {
-  const [balance, setBalance] = useState(1240);
+  const [balance, setBalance] = useState(15000);
   const [activated, setActivated] = useState<string[]>([]);
 
   const topUp = useCallback((amount: number) => {

@@ -4,12 +4,12 @@ import { toast } from '@/hooks/use-toast';
 import { topUpMethods } from '@/data/nicedrop';
 import { formatMoney, useBalance } from '@/hooks/use-balance';
 
-const presets = [100, 300, 500, 1000, 2500, 5000];
+const presets = [1000, 3000, 5000, 10000, 25000, 50000];
 
 const TopUp = () => {
   const { balance, topUp } = useBalance();
   const [method, setMethod] = useState('card');
-  const [amount, setAmount] = useState('500');
+  const [amount, setAmount] = useState('5000');
   const [error, setError] = useState('');
 
   const num = Number(amount.replace(/\s/g, ''));
