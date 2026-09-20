@@ -135,6 +135,16 @@
     .hero-grid > * {
       height: 100%;
     }
+    /* показали все кейсы — экран растёт вниз, а не наезжает на следующий блок */
+    .hero-shell:has(.cases-expanded) {
+      height: auto;
+      max-height: none;
+      align-content: start;
+      grid-template-rows: auto auto;
+      grid-template-areas:
+        "nav nav nav"
+        "side grid grid";
+    }
   }
 
   /* карточка кейса: свечение и световой конус как в исходном экране */

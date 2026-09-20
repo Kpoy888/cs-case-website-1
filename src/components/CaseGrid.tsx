@@ -34,7 +34,7 @@ const CaseGrid = ({ category, onOpen }: Props) => {
   const visible = expanded ? list : list.slice(0, 6);
 
   return (
-    <main className="flex min-h-0 flex-col">
+    <main className={`flex min-h-0 flex-col ${expanded ? 'cases-expanded' : ''}`}>
       <div className="mb-3 flex flex-wrap items-end gap-4">
         <h1 className="font-display text-head uppercase leading-[1.05] tracking-[.01em]">
           Кейсы <span className="not-italic text-primary">Nicedrop</span>

@@ -1,5 +1,8 @@
 import Icon from '@/components/ui/icon';
-import { CategoryId, categories } from '@/data/nicedrop';
+import { CategoryId, categories, cases } from '@/data/nicedrop';
+
+const countFor = (id: CategoryId) =>
+  id === 'all' ? cases.length : cases.filter((c) => c.category === id).length;
 
 interface Props {
   active: CategoryId;
@@ -28,15 +31,13 @@ const CategorySidebar = ({ active, onChange, onPromo }: Props) => (
             >
               <Icon name={c.icon} size={16} className="shrink-0" />
               <span className="truncate">{c.label}</span>
-              {c.count && (
-                <span
-                  className={`ml-auto text-[.78em] font-extrabold ${
-                    on ? 'opacity-70' : 'opacity-80'
-                  }`}
-                >
-                  {c.count}
-                </span>
-              )}
+              <span
+                className={`ml-auto text-[.78em] font-extrabold ${
+                  on ? 'opacity-70' : 'opacity-80'
+                }`}
+              >
+                {countFor(c.id)}
+              </span>
             </button>
           </li>
         );
