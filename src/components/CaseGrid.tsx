@@ -23,7 +23,7 @@ const CaseGrid = ({ category, onOpen }: Props) => {
   const list = useMemo(() => {
     let l = cases.filter((c) => {
       if (category === 'all') return true;
-      if (category === 'cheap') return c.price <= 10000;
+      if (category === 'cheap') return c.category === 'cheap';
       return c.category === category;
     });
     if (sort === 'cheap') l = [...l].sort((a, b) => a.price - b.price);
