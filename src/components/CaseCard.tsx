@@ -1,6 +1,5 @@
 import { CSSProperties } from 'react';
-import CrateIcon from '@/components/CrateIcon';
-import { CaseItem, rarityVar } from '@/data/nicedrop';
+import { CaseItem, rarityArt, rarityVar } from '@/data/nicedrop';
 import { formatMoney } from '@/hooks/use-balance';
 
 interface Props {
@@ -27,7 +26,12 @@ const CaseCard = ({ item, index, onOpen }: Props) => (
     </div>
 
     <div className="flex flex-1 items-center justify-center py-3">
-      <CrateIcon className="w-[116px] drop-shadow-[0_12px_18px_rgba(0,0,0,.6)] transition-transform duration-300 group-hover:-translate-y-1 group-hover:scale-105" />
+      <img
+        src={rarityArt[item.rarity]}
+        alt={`Кейс ${item.name}`}
+        loading="lazy"
+        className="h-[132px] w-[132px] object-contain mix-blend-screen drop-shadow-[0_12px_22px_rgba(0,0,0,.65)] transition-transform duration-300 group-hover:-translate-y-1 group-hover:scale-105"
+      />
     </div>
 
     <div className="mb-2 font-display text-[1.12em] uppercase leading-none tracking-[.02em]">

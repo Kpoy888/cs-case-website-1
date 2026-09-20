@@ -29,6 +29,13 @@ export const categories: { id: CategoryId; label: string; icon: string; count?: 
   { id: 'premium', label: 'Премиум', icon: 'Crown', count: '7' },
 ];
 
+export const rarityArt: Record<Rarity, string> = {
+  glow: 'https://cdn.poehali.dev/projects/0b443350-d3d4-41fe-b9ec-80fe1148da82/files/2bea2714-843e-4fd5-aba1-6027ecd932f2.jpg',
+  rare: 'https://cdn.poehali.dev/projects/0b443350-d3d4-41fe-b9ec-80fe1148da82/files/09c2b241-fb01-4ad2-8a9f-84118142e3ae.jpg',
+  hot: 'https://cdn.poehali.dev/projects/0b443350-d3d4-41fe-b9ec-80fe1148da82/files/924b1338-c774-417c-bdd9-e9dff7c34378.jpg',
+  live: 'https://cdn.poehali.dev/projects/0b443350-d3d4-41fe-b9ec-80fe1148da82/files/44a8b1ca-2337-4c58-9c60-dd5c26619526.jpg',
+};
+
 export const rarityVar: Record<Rarity, string> = {
   glow: 'var(--glow)',
   rare: 'var(--rare)',

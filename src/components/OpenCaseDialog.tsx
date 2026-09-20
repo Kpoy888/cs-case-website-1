@@ -1,8 +1,7 @@
 import { CSSProperties, useEffect, useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
-import CrateIcon from '@/components/CrateIcon';
-import { CaseItem, rarityVar } from '@/data/nicedrop';
+import { CaseItem, rarityArt, rarityVar } from '@/data/nicedrop';
 import { formatMoney, useBalance } from '@/hooks/use-balance';
 
 interface Props {
@@ -67,8 +66,10 @@ const OpenCaseDialog = ({ item, onClose }: Props) => {
           <h3 className="mt-1 font-display text-3xl uppercase tracking-[.02em]">{item.name}</h3>
 
           <div className="my-6 flex justify-center">
-            <CrateIcon
-              className={`w-40 drop-shadow-[0_16px_28px_rgba(0,0,0,.7)] ${
+            <img
+              src={rarityArt[item.rarity]}
+              alt={`Кейс ${item.name}`}
+              className={`h-44 w-44 object-contain mix-blend-screen drop-shadow-[0_16px_28px_rgba(0,0,0,.7)] ${
                 phase === 'spin' ? 'animate-pulse-dot' : ''
               }`}
             />
