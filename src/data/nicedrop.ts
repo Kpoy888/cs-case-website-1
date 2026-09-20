@@ -231,7 +231,6 @@ export const faq = [
 
 export const navLinks = [
   { id: 'cases', label: 'Кейсы' },
-  { id: 'drops', label: 'Последние дропы' },
   { id: 'top', label: 'Топ игроков' },
   { id: 'topup', label: 'Пополнение' },
   { id: 'bonuses', label: 'Бонусы' },

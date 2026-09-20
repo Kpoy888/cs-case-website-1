@@ -4,7 +4,6 @@ import LiveTicker from '@/components/LiveTicker';
 import CategorySidebar from '@/components/CategorySidebar';
 import CaseGrid from '@/components/CaseGrid';
 import OpenCaseDialog from '@/components/OpenCaseDialog';
-import RecentDrops from '@/components/RecentDrops';
 import TopPlayers from '@/components/TopPlayers';
 import TopUp from '@/components/TopUp';
 import Bonuses, { BonusesHandle } from '@/components/Bonuses';
@@ -46,7 +45,6 @@ const IndexContent = () => {
         </section>
 
         <div className="mt-16 flex flex-col gap-16 sm:mt-20 sm:gap-20">
-          <RecentDrops />
           <TopPlayers />
           <TopUp />
           <Bonuses ref={bonusesRef} />
