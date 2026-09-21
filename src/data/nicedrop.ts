@@ -210,8 +210,6 @@ export const promos = [
 export const topUpMethods = [
   { id: 'card', label: 'Банковская карта', icon: 'CreditCard', hint: 'Visa / MIR / MC' },
   { id: 'sbp', label: 'СБП', icon: 'Smartphone', hint: 'по номеру телефона' },
-  { id: 'crypto', label: 'Криптовалюта', icon: 'Bitcoin', hint: 'BTC / USDT / TON' },
-  { id: 'steam', label: 'Скины Steam', icon: 'Gamepad2', hint: 'обмен трейдом' },
 ];
 
 export const faq = [
