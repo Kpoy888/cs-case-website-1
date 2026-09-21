@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { useTopUpRequests } from '@/hooks/use-topup';
 import Icon from '@/components/ui/icon';
 import { navLinks } from '@/data/nicedrop';
 import { formatMoney, useBalance } from '@/hooks/use-balance';
@@ -10,9 +11,25 @@ const Header = () => {
   const { balance, setBalance } = useBalance();
   const { user, logout } = useAuth();
 
+  const location = useLocation();
+  const { requests, refresh } = useTopUpRequests(setBalance);
+
   useEffect(() => {
     setBalance(user?.balance ?? 0);
   }, [user, setBalance]);
+
+  const watching = user && location.pathname !== '/topup';
+  const hasPending = requests.some((r) => r.status === 'pending');
+
+  useEffect(() => {
+    if (watching) refresh();
+  }, [watching, refresh]);
+
+  useEffect(() => {
+    if (!watching || !hasPending) return;
+    const t = setInterval(refresh, 15000);
+    return () => clearInterval(t);
+  }, [watching, hasPending, refresh]);
   const [open, setOpen] = useState(false);
   const [auth, setAuth] = useState<'login' | 'register' | null>(null);
   const navigate = useNavigate();

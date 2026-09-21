@@ -1,4 +1,5 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
+import { toast } from '@/hooks/use-toast';
 import func2url from '../../backend/func2url.json';
 
 const TOPUP_URL = func2url.topup;
@@ -26,6 +27,7 @@ const token = () => {
 export const useTopUpRequests = (onBalance?: (value: number) => void) => {
   const [requests, setRequests] = useState<TopUpRequest[]>([]);
   const [loading, setLoading] = useState(false);
+  const seen = useRef(new Map<number, string>());
 
   const refresh = useCallback(async () => {
     if (!token()) return;
@@ -34,7 +36,26 @@ export const useTopUpRequests = (onBalance?: (value: number) => void) => {
       const res = await fetch(TOPUP_URL, { headers: { 'X-Auth-Token': token() } });
       const data = await res.json();
       if (res.ok) {
-        setRequests(data.requests || []);
+        const list: TopUpRequest[] = data.requests || [];
+
+        list.forEach((r) => {
+          const was = seen.current.get(r.id);
+          if (was === 'pending' && r.status === 'approved') {
+            toast({
+              title: 'Баланс пополнен',
+              description: `Заявка №${r.order_code} подтверждена: +${r.total.toLocaleString('ru-RU')} ₽.`,
+            });
+          }
+          if (was === 'pending' && r.status === 'rejected') {
+            toast({
+              title: 'Заявка отклонена',
+              description: r.comment || 'Перевод не найден. Проверьте выписку и сумму.',
+            });
+          }
+          seen.current.set(r.id, r.status);
+        });
+
+        setRequests(list);
         if (onBalance && typeof data.balance === 'number') onBalance(data.balance);
       }
     } catch {
