@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useMemo, useState } from 'react
 
 interface BalanceCtx {
   balance: number;
+  setBalance: (value: number) => void;
   activated: string[];
   topUp: (amount: number) => void;
   spend: (amount: number) => boolean;
@@ -50,7 +51,7 @@ export const BalanceProvider = ({ children }: { children: React.ReactNode }) => 
   );
 
   const value = useMemo(
-    () => ({ balance, activated, topUp, spend, activatePromo }),
+    () => ({ balance, setBalance, activated, topUp, spend, activatePromo }),
     [balance, activated, topUp, spend, activatePromo],
   );
 

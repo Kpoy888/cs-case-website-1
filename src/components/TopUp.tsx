@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Icon from '@/components/ui/icon';
 import CardPaymentDialog from '@/components/CardPaymentDialog';
 import { toast } from '@/hooks/use-toast';
@@ -6,17 +6,29 @@ import { topUpMethods } from '@/data/nicedrop';
 import { formatMoney, useBalance } from '@/hooks/use-balance';
 import { useAuth } from '@/hooks/use-auth';
 import AuthDialog from '@/components/AuthDialog';
+import { useTopUpRequests } from '@/hooks/use-topup';
 
 const presets = [100, 500, 1000, 5000, 10000, 25000];
 
+const statusInfo: Record<string, { label: string; icon: string; color: string }> = {
+  pending: { label: 'На проверке', icon: 'Clock', color: 'text-primary' },
+  approved: { label: 'Зачислено', icon: 'CircleCheck', color: 'text-live' },
+  rejected: { label: 'Отклонено', icon: 'CircleX', color: 'text-hot' },
+};
+
 const TopUp = () => {
-  const { balance, topUp } = useBalance();
+  const { balance, setBalance } = useBalance();
   const [method, setMethod] = useState('card');
   const [amount, setAmount] = useState('5000');
   const [error, setError] = useState('');
   const [payOpen, setPayOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const { user } = useAuth();
+  const { requests, refresh, create } = useTopUpRequests(setBalance);
+
+  useEffect(() => {
+    if (user) refresh();
+  }, [user, refresh]);
 
   const num = Number(amount.replace(/\s/g, ''));
   const bonus = num >= 2000 ? 0.25 : num >= 300 ? 0.15 : 0;
@@ -41,21 +53,18 @@ const TopUp = () => {
       return;
     }
     setError('');
-
-    if (method === 'card') {
-      setPayOpen(true);
-      return;
-    }
-
-    credit();
+    setPayOpen(true);
   };
 
-  const credit = () => {
-    topUp(total);
-    toast({
-      title: 'Баланс пополнен',
-      description: `Зачислено ${formatMoney(total)}${bonus ? ` с бонусом +${bonus * 100}%` : ''}.`,
-    });
+  const sendRequest = async (receipt: string) => {
+    const err = await create(num, receipt);
+    if (!err) {
+      toast({
+        title: 'Заявка отправлена',
+        description: `Проверим выписку и зачислим ${formatMoney(total)} на баланс.`,
+      });
+    }
+    return err;
   };
 
   return (
@@ -65,7 +74,8 @@ const TopUp = () => {
           Пополнение <span className="text-primary">баланса</span>
         </h2>
         <p className="mt-2 text-[.85em] font-bold text-muted-foreground">
-          Зачисление моментальное. Бонус +15% от 300 ₽ и +25% от 2 000 ₽.
+          Переведите сумму на карту и приложите выписку из банка — зачислим после проверки.
+          Бонус +15% от 300 ₽ и +25% от 2 000 ₽.
         </p>
       </div>
 
@@ -156,11 +166,7 @@ const TopUp = () => {
             type="submit"
             className="mt-5 w-full rounded-full bg-primary py-3.5 font-display text-lg tracking-[.03em] text-primary-foreground shadow-[0_8px_26px_hsl(var(--primary)/0.28)] transition-transform hover:scale-[1.01]"
           >
-            {!user
-              ? 'Войти и пополнить'
-              : method === 'card'
-                ? 'Получить реквизиты'
-                : `Пополнить на ${formatMoney(total || 0)}`}
+            {user ? 'Получить реквизиты' : 'Войти и пополнить'}
           </button>
         </form>
 
@@ -188,8 +194,8 @@ const TopUp = () => {
 
           <div className="rounded-[var(--hero-radius)] border border-border bg-card p-5">
             {[
-              { icon: 'ShieldCheck', t: 'Защита платежей', d: 'Оплата через проверенных провайдеров' },
-              { icon: 'Zap', t: 'Моментально', d: 'Баланс обновляется за секунды' },
+              { icon: 'ShieldCheck', t: 'Проверка перевода', d: 'Каждая выписка проверяется вручную' },
+              { icon: 'Clock', t: 'Обычно 5–15 минут', d: 'После подтверждения баланс пополняется' },
               { icon: 'Headphones', t: 'Поддержка 24/7', d: 'Отвечаем в чате и Telegram' },
             ].map((f) => (
               <div key={f.t} className="flex gap-3 border-b border-border py-3 last:border-0 last:pb-0 first:pt-0">
@@ -204,15 +210,58 @@ const TopUp = () => {
         </aside>
       </div>
 
+      {user && requests.length > 0 && (
+        <div className="mt-4 rounded-[var(--hero-radius)] border border-border bg-card p-5">
+          <div className="mb-3 flex items-center justify-between">
+            <div className="font-display text-[.82em] uppercase tracking-[.2em] text-muted-foreground">
+              Мои заявки
+            </div>
+            <button
+              onClick={refresh}
+              className="flex items-center gap-1.5 text-[.78em] font-extrabold text-primary"
+            >
+              <Icon name="RefreshCw" size={14} />
+              Обновить
+            </button>
+          </div>
+
+          <div className="space-y-2">
+            {requests.map((r) => {
+              const s = statusInfo[r.status] ?? statusInfo.pending;
+              return (
+                <div
+                  key={r.id}
+                  className="flex flex-wrap items-center gap-3 rounded-xl border border-border bg-background px-4 py-3"
+                >
+                  <Icon name={s.icon} size={17} className={`shrink-0 ${s.color}`} />
+                  <div className="min-w-0">
+                    <div className="text-[.85em] font-extrabold">
+                      Заявка №{r.order_code} · {formatMoney(r.amount)}
+                    </div>
+                    <div className="text-[.72em] font-bold text-muted-foreground">
+                      {new Date(r.created_at).toLocaleString('ru-RU')}
+                      {r.comment ? ` · ${r.comment}` : ''}
+                    </div>
+                  </div>
+                  <div className="ml-auto text-right">
+                    <div className={`text-[.8em] font-extrabold ${s.color}`}>{s.label}</div>
+                    <div className="text-[.72em] font-bold text-muted-foreground">
+                      к зачислению {formatMoney(r.total)}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       <CardPaymentDialog
         open={payOpen}
         amount={num || 0}
         total={total || 0}
         onClose={() => setPayOpen(false)}
-        onPaid={() => {
-          setPayOpen(false);
-          credit();
-        }}
+        onSubmit={sendRequest}
       />
 
       <AuthDialog open={authOpen} initialMode="register" onClose={() => setAuthOpen(false)} />

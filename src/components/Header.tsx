@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
 import { navLinks } from '@/data/nicedrop';
@@ -7,8 +7,12 @@ import { useAuth } from '@/hooks/use-auth';
 import AuthDialog from '@/components/AuthDialog';
 
 const Header = () => {
-  const { balance } = useBalance();
+  const { balance, setBalance } = useBalance();
   const { user, logout } = useAuth();
+
+  useEffect(() => {
+    setBalance(user?.balance ?? 0);
+  }, [user, setBalance]);
   const [open, setOpen] = useState(false);
   const [auth, setAuth] = useState<'login' | 'register' | null>(null);
   const navigate = useNavigate();
