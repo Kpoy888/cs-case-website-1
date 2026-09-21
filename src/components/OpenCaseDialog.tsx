@@ -7,6 +7,8 @@ import { CaseItem, rarityArt, rarityColor, rarityVar } from '@/data/nicedrop';
 import { skinArt } from '@/data/skins';
 import { formatMoney, useBalance } from '@/hooks/use-balance';
 import { useAuth } from '@/hooks/use-auth';
+import { useInventory } from '@/hooks/use-inventory';
+import { toast } from '@/hooks/use-toast';
 import AuthDialog from '@/components/AuthDialog';
 
 interface Props {
@@ -17,8 +19,10 @@ interface Props {
 type Phase = 'confirm' | 'spin' | 'result' | 'nomoney' | 'noauth';
 
 const OpenCaseDialog = ({ item, onClose }: Props) => {
-  const { balance, spend, topUp } = useBalance();
+  const { balance, setBalance } = useBalance();
   const { user } = useAuth();
+  const { addItem, sell } = useInventory();
+  const [lastItemId, setLastItemId] = useState<number | null>(null);
   const [authOpen, setAuthOpen] = useState(false);
   const [phase, setPhase] = useState<Phase>('confirm');
   const [prize, setPrize] = useState<string>('');
@@ -34,7 +38,7 @@ const OpenCaseDialog = ({ item, onClose }: Props) => {
 
   if (!item) return null;
 
-  const start = () => {
+  const start = async () => {
     if (!user) {
       setPhase('noauth');
       return;
@@ -43,7 +47,6 @@ const OpenCaseDialog = ({ item, onClose }: Props) => {
       setPhase('nomoney');
       return;
     }
-    spend(item.price);
 
     const lucky = Math.random() < 0.1;
     const pool = item.drops.filter((d) => {
@@ -52,10 +55,40 @@ const OpenCaseDialog = ({ item, onClose }: Props) => {
     });
     const source = pool.length ? pool : item.drops;
     const won = source[Math.floor(Math.random() * source.length)];
+    const skin = skinArt[won];
 
+    const res = await addItem({
+      skin_name: won,
+      price: skin?.price ?? item.price,
+      image_url: skin?.img,
+      rarity: skin?.rarity,
+      case_name: item.name,
+      case_price: item.price,
+    });
+
+    if (res.error) {
+      setPhase('nomoney');
+      return;
+    }
+
+    if (typeof res.balance === 'number') setBalance(res.balance);
+    setLastItemId(res.itemId ?? null);
     setPrize(won);
-    setPrizeValue(skinArt[won]?.price ?? item.price);
+    setPrizeValue(skin?.price ?? item.price);
     setPhase('spin');
+  };
+
+  const sellPrize = async () => {
+    if (!lastItemId) return;
+    const res = await sell([lastItemId]);
+    if (res.error) return;
+    if (typeof res.balance === 'number') setBalance(res.balance);
+    toast({
+      title: 'Предмет продан',
+      description: `На баланс зачислено ${formatMoney(res.earned || 0)}.`,
+    });
+    setLastItemId(null);
+    setPhase('confirm');
   };
 
   const prizeSkin = skinArt[prize];
@@ -156,15 +189,18 @@ const OpenCaseDialog = ({ item, onClose }: Props) => {
                   ≈ {formatMoney(prizeValue)}
                 </div>
               </div>
-              <div className="mt-5 flex gap-3">
+              <p className="mt-3 flex items-center justify-center gap-1.5 text-[.76em] font-bold text-muted-foreground">
+                <Icon name="PackageCheck" size={14} className="text-primary" />
+                Предмет добавлен в инвентарь
+              </p>
+
+              <div className="mt-4 flex gap-3">
                 <button
-                  onClick={() => {
-                    topUp(prizeValue);
-                    onClose();
-                  }}
-                  className="flex-1 rounded-full border border-border bg-secondary py-3 text-[.85em] font-extrabold text-foreground transition-colors hover:bg-secondary/70"
+                  onClick={sellPrize}
+                  disabled={!lastItemId}
+                  className="flex-1 rounded-full border border-border bg-secondary py-3 text-[.85em] font-extrabold text-foreground transition-colors hover:bg-secondary/70 disabled:opacity-40"
                 >
-                  Продать
+                  Продать за {formatMoney(prizeValue)}
                 </button>
                 <button
                   onClick={() => setPhase('confirm')}
@@ -173,6 +209,16 @@ const OpenCaseDialog = ({ item, onClose }: Props) => {
                   Ещё раз
                 </button>
               </div>
+
+              <button
+                onClick={() => {
+                  onClose();
+                  navigate('/inventory');
+                }}
+                className="mt-3 w-full text-[.8em] font-extrabold text-primary"
+              >
+                Открыть инвентарь
+              </button>
             </div>
           )}
 

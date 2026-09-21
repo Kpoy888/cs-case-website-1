@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { BalanceProvider } from '@/hooks/use-balance';
 import { AuthProvider } from '@/hooks/use-auth';
+import { InventoryProvider } from '@/hooks/use-inventory';
 import ScrollToTop from '@/components/ScrollToTop';
 import Index from './pages/Index';
 import TopPage from './pages/TopPage';
@@ -13,6 +14,7 @@ import BonusesPage from './pages/BonusesPage';
 import SupportPage from './pages/SupportPage';
 import AdminPage from './pages/AdminPage';
 import TermsPage from './pages/TermsPage';
+import InventoryPage from './pages/InventoryPage';
 import NotFound from './pages/NotFound';
 
 const queryClient = new QueryClient();
@@ -24,6 +26,7 @@ const App = () => (
       <Sonner />
       <AuthProvider>
       <BalanceProvider>
+        <InventoryProvider>
         <BrowserRouter>
           <ScrollToTop />
           <Routes>
@@ -34,9 +37,11 @@ const App = () => (
             <Route path="/support" element={<SupportPage />} />
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/terms" element={<TermsPage />} />
+            <Route path="/inventory" element={<InventoryPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
+        </InventoryProvider>
       </BalanceProvider>
       </AuthProvider>
     </TooltipProvider>

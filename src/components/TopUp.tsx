@@ -26,8 +26,7 @@ const TopUp = () => {
   const [authOpen, setAuthOpen] = useState(false);
   const { user } = useAuth();
   const [tab, setTab] = useState<'topup' | 'withdraw'>('topup');
-  const { requests, withdrawals, tradeUrl, refresh, create, withdraw } =
-    useTopUpRequests(setBalance);
+  const { requests, withdrawals, refresh, create } = useTopUpRequests(setBalance);
 
   useEffect(() => {
     if (user) refresh();
@@ -112,12 +111,7 @@ const TopUp = () => {
       </div>
 
       {tab === 'withdraw' ? (
-        <Withdraw
-          withdrawals={withdrawals}
-          savedTradeUrl={tradeUrl}
-          onWithdraw={withdraw}
-          onRefresh={refresh}
-        />
+        <Withdraw withdrawals={withdrawals} onRefresh={refresh} />
       ) : (
       <>
       <div className="grid gap-4 lg:grid-cols-[1fr_340px]">

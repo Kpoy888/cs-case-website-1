@@ -241,6 +241,7 @@ export const faq = [
 
 export const navLinks = [
   { id: 'cases', label: 'Кейсы', path: '/' },
+  { id: 'inventory', label: 'Инвентарь', path: '/inventory' },
   { id: 'top', label: 'Топ игроков', path: '/top' },
   { id: 'topup', label: 'Баланс', path: '/topup' },
   { id: 'bonuses', label: 'Бонусы', path: '/bonuses' },

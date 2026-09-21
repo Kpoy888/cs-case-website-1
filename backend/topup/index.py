@@ -278,10 +278,29 @@ def handler(event: dict, context) -> dict:
                 (decision, str(body.get('comment') or '')[:500], datetime.utcnow(), user['id'], req_id),
             )
 
+            cur.execute(
+                f"SELECT COUNT(*) AS c FROM {SCHEMA}.inventory WHERE withdrawal_id = %s",
+                (req_id,),
+            )
+            has_items = int(cur.fetchone()['c']) > 0
+
             if decision == 'rejected':
+                if has_items:
+                    cur.execute(
+                        f"UPDATE {SCHEMA}.inventory SET status = 'owned', withdrawal_id = NULL, updated_at = %s "
+                        f"WHERE withdrawal_id = %s",
+                        (datetime.utcnow(), req_id),
+                    )
+                else:
+                    cur.execute(
+                        f"UPDATE {SCHEMA}.users SET balance = balance + %s WHERE id = %s",
+                        (req['amount'], req['user_id']),
+                    )
+            elif has_items:
                 cur.execute(
-                    f"UPDATE {SCHEMA}.users SET balance = balance + %s WHERE id = %s",
-                    (req['amount'], req['user_id']),
+                    f"UPDATE {SCHEMA}.inventory SET status = 'withdrawn', updated_at = %s "
+                    f"WHERE withdrawal_id = %s",
+                    (datetime.utcnow(), req_id),
                 )
 
             return _resp(200, {'ok': True})
