@@ -93,7 +93,7 @@ const CardPaymentDialog = ({ open, amount, total, onClose, onSubmit }: Props) =>
               Заявка на проверке
             </h3>
             <p className="mt-2 text-[.82em] font-bold leading-[1.5] text-muted-foreground">
-              Выписка отправлена. Обычно проверяем за 5–15 минут — как только перевод подтвердится,
+              Выписка отправлена. Проверка занимает около 3 минут — как только перевод подтвердится,
               {' '}
               {formatMoney(total)} упадут на баланс.
             </p>

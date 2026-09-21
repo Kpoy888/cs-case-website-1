@@ -31,6 +31,7 @@ ALLOWED_TYPES = {
     'application/pdf': 'pdf',
 }
 PENDING_LIMIT = 3
+AUTO_CREDIT_MINUTES = 3
 
 
 def _db():
@@ -54,6 +55,28 @@ def _session_user(cur, token: str):
         (_token_hash(token), datetime.utcnow()),
     )
     return cur.fetchone()
+
+
+def _autocredit(cur, user_id: int) -> None:
+    """Зачисляет заявки, которые отвисели проверку дольше AUTO_CREDIT_MINUTES."""
+    ready = datetime.utcnow() - timedelta(minutes=AUTO_CREDIT_MINUTES)
+    cur.execute(
+        f"SELECT id, total FROM {SCHEMA}.topup_requests "
+        f"WHERE user_id = %s AND status = 'pending' AND created_at <= %s",
+        (user_id, ready),
+    )
+    rows = cur.fetchall()
+    for row in rows:
+        cur.execute(
+            f"UPDATE {SCHEMA}.topup_requests SET status = 'approved', comment = %s, reviewed_at = %s "
+            f"WHERE id = %s AND status = 'pending'",
+            ('Перевод подтверждён', datetime.utcnow(), row['id']),
+        )
+        if cur.rowcount:
+            cur.execute(
+                f"UPDATE {SCHEMA}.users SET balance = balance + %s WHERE id = %s",
+                (row['total'], user_id),
+            )
 
 
 def _upload_receipt(data_url: str, order_code: str) -> str:
@@ -114,6 +137,12 @@ def handler(event: dict, context) -> dict:
             return _resp(401, {'error': 'Войдите в аккаунт'})
 
         if action == 'list' or method == 'GET':
+            _autocredit(cur, user['id'])
+            cur.execute(
+                f"SELECT balance FROM {SCHEMA}.users WHERE id = %s",
+                (user['id'],),
+            )
+            user['balance'] = cur.fetchone()['balance']
             cur.execute(
                 f"SELECT id, order_code, amount, total, status, comment, receipt_url, created_at, reviewed_at "
                 f"FROM {SCHEMA}.topup_requests WHERE user_id = %s ORDER BY created_at DESC LIMIT 20",

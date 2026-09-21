@@ -30,6 +30,14 @@ const TopUp = () => {
     if (user) refresh();
   }, [user, refresh]);
 
+  const hasPending = requests.some((r) => r.status === 'pending');
+
+  useEffect(() => {
+    if (!user || !hasPending) return;
+    const t = setInterval(refresh, 15000);
+    return () => clearInterval(t);
+  }, [user, hasPending, refresh]);
+
   const num = Number(amount.replace(/\s/g, ''));
   const bonus = num >= 2000 ? 0.25 : num >= 300 ? 0.15 : 0;
   const total = Math.round(num * (1 + bonus));
@@ -194,8 +202,8 @@ const TopUp = () => {
 
           <div className="rounded-[var(--hero-radius)] border border-border bg-card p-5">
             {[
-              { icon: 'ShieldCheck', t: 'Проверка перевода', d: 'Каждая выписка проверяется вручную' },
-              { icon: 'Clock', t: 'Обычно 5–15 минут', d: 'После подтверждения баланс пополняется' },
+              { icon: 'ShieldCheck', t: 'Проверка перевода', d: 'Выписка сверяется с поступлением' },
+              { icon: 'Clock', t: 'Около 3 минут', d: 'После подтверждения баланс пополняется' },
               { icon: 'Headphones', t: 'Поддержка 24/7', d: 'Отвечаем в чате и Telegram' },
             ].map((f) => (
               <div key={f.t} className="flex gap-3 border-b border-border py-3 last:border-0 last:pb-0 first:pt-0">
