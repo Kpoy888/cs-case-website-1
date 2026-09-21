@@ -7,6 +7,7 @@ import { formatMoney, useBalance } from '@/hooks/use-balance';
 import { useAuth } from '@/hooks/use-auth';
 import AuthDialog from '@/components/AuthDialog';
 import { useTopUpRequests } from '@/hooks/use-topup';
+import Withdraw from '@/components/Withdraw';
 
 const presets = [100, 500, 1000, 5000, 10000, 25000];
 
@@ -24,7 +25,9 @@ const TopUp = () => {
   const [payOpen, setPayOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const { user } = useAuth();
-  const { requests, refresh, create } = useTopUpRequests(setBalance);
+  const [tab, setTab] = useState<'topup' | 'withdraw'>('topup');
+  const { requests, withdrawals, tradeUrl, refresh, create, withdraw } =
+    useTopUpRequests(setBalance);
 
   useEffect(() => {
     if (user) refresh();
@@ -79,14 +82,44 @@ const TopUp = () => {
     <section id="topup" className="scroll-mt-24">
       <div className="mb-4">
         <h2 className="font-display text-3xl uppercase tracking-[.02em] sm:text-4xl">
-          Пополнение <span className="text-primary">баланса</span>
+          Баланс <span className="text-primary">Nicedrop</span>
         </h2>
         <p className="mt-2 text-[.85em] font-bold text-muted-foreground">
-          Переведите сумму на карту и приложите выписку из банка — зачислим после проверки.
-          Бонус +15% от 300 ₽ и +25% от 2 000 ₽.
+          {tab === 'topup'
+            ? 'Переведите сумму на карту и приложите выписку из банка — зачислим после проверки. Бонус +15% от 300 ₽ и +25% от 2 000 ₽.'
+            : 'Вставьте трейд-ссылку Steam — отправим предмет обменом после проверки заявки.'}
         </p>
       </div>
 
+      <div className="mb-4 inline-flex gap-1 rounded-full border border-border bg-card p-1">
+        {[
+          { id: 'topup' as const, label: 'Пополнение', icon: 'ArrowDownToLine' },
+          { id: 'withdraw' as const, label: 'Вывод', icon: 'ArrowUpFromLine' },
+        ].map((t) => (
+          <button
+            key={t.id}
+            onClick={() => setTab(t.id)}
+            className={`flex items-center gap-2 rounded-full px-5 py-2.5 text-[.85em] font-extrabold transition-colors ${
+              tab === t.id
+                ? 'bg-primary text-primary-foreground'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <Icon name={t.icon} size={16} />
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {tab === 'withdraw' ? (
+        <Withdraw
+          withdrawals={withdrawals}
+          savedTradeUrl={tradeUrl}
+          onWithdraw={withdraw}
+          onRefresh={refresh}
+        />
+      ) : (
+      <>
       <div className="grid gap-4 lg:grid-cols-[1fr_340px]">
         <form
           onSubmit={submit}
@@ -262,6 +295,8 @@ const TopUp = () => {
             })}
           </div>
         </div>
+      )}
+      </>
       )}
 
       <CardPaymentDialog

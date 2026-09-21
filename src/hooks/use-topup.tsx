@@ -16,6 +16,18 @@ export interface TopUpRequest {
   reviewed_at?: string | null;
 }
 
+export interface WithdrawRequest {
+  id: number;
+  order_code: string;
+  amount: number;
+  item_name?: string | null;
+  trade_url: string;
+  status: 'pending' | 'approved' | 'rejected';
+  comment?: string | null;
+  created_at: string;
+  reviewed_at?: string | null;
+}
+
 const token = () => {
   try {
     return localStorage.getItem(TOKEN_KEY) || '';
@@ -26,8 +38,11 @@ const token = () => {
 
 export const useTopUpRequests = (onBalance?: (value: number) => void) => {
   const [requests, setRequests] = useState<TopUpRequest[]>([]);
+  const [withdrawals, setWithdrawals] = useState<WithdrawRequest[]>([]);
+  const [tradeUrl, setTradeUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const seen = useRef(new Map<number, string>());
+  const seenW = useRef(new Map<number, string>());
 
   const refresh = useCallback(async () => {
     if (!token()) return;
@@ -56,6 +71,27 @@ export const useTopUpRequests = (onBalance?: (value: number) => void) => {
         });
 
         setRequests(list);
+
+        const wlist: WithdrawRequest[] = data.withdrawals || [];
+        wlist.forEach((w) => {
+          const was = seenW.current.get(w.id);
+          if (was === 'pending' && w.status === 'approved') {
+            toast({
+              title: 'Вывод отправлен',
+              description: `Заявка №${w.order_code}: трейд-предложение придёт в Steam.`,
+            });
+          }
+          if (was === 'pending' && w.status === 'rejected') {
+            toast({
+              title: 'Вывод отклонён',
+              description: w.comment || 'Средства возвращены на баланс.',
+            });
+          }
+          seenW.current.set(w.id, w.status);
+        });
+        setWithdrawals(wlist);
+
+        if (typeof data.trade_url === 'string') setTradeUrl(data.trade_url);
         if (onBalance && typeof data.balance === 'number') onBalance(data.balance);
       }
     } catch {
@@ -84,7 +120,26 @@ export const useTopUpRequests = (onBalance?: (value: number) => void) => {
     [refresh],
   );
 
-  return { requests, loading, refresh, create };
+  const withdraw = useCallback(
+    async (amount: number, trade_url: string): Promise<string> => {
+      try {
+        const res = await fetch(`${TOPUP_URL}?action=withdraw`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token() },
+          body: JSON.stringify({ amount, trade_url }),
+        });
+        const data = await res.json();
+        if (!res.ok) return data.error || 'Не удалось отправить заявку на вывод';
+        await refresh();
+        return '';
+      } catch {
+        return 'Сервис временно недоступен, попробуйте позже';
+      }
+    },
+    [refresh],
+  );
+
+  return { requests, withdrawals, tradeUrl, loading, refresh, create, withdraw };
 };
 
 export const fileToDataUrl = (file: File): Promise<string> =>

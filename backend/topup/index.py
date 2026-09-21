@@ -2,6 +2,7 @@ import base64
 import hashlib
 import json
 import os
+import re
 import secrets
 from datetime import datetime, timedelta
 
@@ -32,6 +33,10 @@ ALLOWED_TYPES = {
 }
 PENDING_LIMIT = 3
 AUTO_CREDIT_MINUTES = 3
+MIN_WITHDRAW = 500
+TRADE_URL_RE = re.compile(
+    r'^https://steamcommunity\.com/tradeoffer/new/\?partner=\d+&token=[A-Za-z0-9_-]{6,}$'
+)
 
 
 def _db():
@@ -148,7 +153,18 @@ def handler(event: dict, context) -> dict:
                 f"FROM {SCHEMA}.topup_requests WHERE user_id = %s ORDER BY created_at DESC LIMIT 20",
                 (user['id'],),
             )
-            return _resp(200, {'requests': cur.fetchall(), 'balance': user['balance']})
+            topups = cur.fetchall()
+            cur.execute(
+                f"SELECT id, order_code, amount, item_name, trade_url, status, comment, created_at, reviewed_at "
+                f"FROM {SCHEMA}.withdrawals WHERE user_id = %s ORDER BY created_at DESC LIMIT 20",
+                (user['id'],),
+            )
+            return _resp(200, {
+                'requests': topups,
+                'withdrawals': cur.fetchall(),
+                'balance': user['balance'],
+                'trade_url': user.get('trade_url') or '',
+            })
 
         if method != 'POST':
             return _resp(405, {'error': 'Метод не поддерживается'})
@@ -198,6 +214,78 @@ def handler(event: dict, context) -> dict:
             )
             return _resp(200, {'request': cur.fetchone()})
 
+        if action == 'withdraw':
+            try:
+                amount = int(body.get('amount') or 0)
+            except Exception:
+                return _resp(400, {'error': 'Некорректная сумма'})
+
+            trade_url = str(body.get('trade_url') or '').strip()[:400]
+            if not TRADE_URL_RE.match(trade_url):
+                return _resp(400, {'error': 'Вставьте корректную трейд-ссылку Steam'})
+
+            if amount < MIN_WITHDRAW:
+                return _resp(400, {'error': f'Минимальная сумма вывода — {MIN_WITHDRAW} ₽'})
+
+            _autocredit(cur, user['id'])
+            cur.execute(f"SELECT balance FROM {SCHEMA}.users WHERE id = %s", (user['id'],))
+            balance = int(cur.fetchone()['balance'])
+            if amount > balance:
+                return _resp(400, {'error': 'На балансе недостаточно средств'})
+
+            cur.execute(
+                f"SELECT COUNT(*) AS c FROM {SCHEMA}.withdrawals WHERE user_id = %s AND status = 'pending'",
+                (user['id'],),
+            )
+            if int(cur.fetchone()['c']) >= PENDING_LIMIT:
+                return _resp(429, {'error': 'У вас уже есть заявки на вывод. Дождитесь решения'})
+
+            cur.execute(
+                f"UPDATE {SCHEMA}.users SET balance = balance - %s, trade_url = %s WHERE id = %s AND balance >= %s",
+                (amount, trade_url, user['id'], amount),
+            )
+            if not cur.rowcount:
+                return _resp(400, {'error': 'На балансе недостаточно средств'})
+
+            order_code = str(secrets.randbelow(900000) + 100000)
+            cur.execute(
+                f"INSERT INTO {SCHEMA}.withdrawals (user_id, order_code, amount, item_name, trade_url) "
+                f"VALUES (%s, %s, %s, %s, %s) RETURNING id, order_code, amount, item_name, status, created_at",
+                (user['id'], order_code, amount, str(body.get('item_name') or '')[:128] or None, trade_url),
+            )
+            return _resp(200, {'request': cur.fetchone()})
+
+        if action == 'review_withdraw':
+            if not user.get('is_admin'):
+                return _resp(403, {'error': 'Недостаточно прав'})
+
+            req_id = int(body.get('id') or 0)
+            decision = str(body.get('decision') or '').strip()
+            if decision not in ('approved', 'rejected'):
+                return _resp(400, {'error': 'Некорректное решение'})
+
+            cur.execute(
+                f"SELECT * FROM {SCHEMA}.withdrawals WHERE id = %s AND status = 'pending'",
+                (req_id,),
+            )
+            req = cur.fetchone()
+            if not req:
+                return _resp(404, {'error': 'Заявка не найдена или уже обработана'})
+
+            cur.execute(
+                f"UPDATE {SCHEMA}.withdrawals SET status = %s, comment = %s, reviewed_at = %s, reviewed_by = %s "
+                f"WHERE id = %s",
+                (decision, str(body.get('comment') or '')[:500], datetime.utcnow(), user['id'], req_id),
+            )
+
+            if decision == 'rejected':
+                cur.execute(
+                    f"UPDATE {SCHEMA}.users SET balance = balance + %s WHERE id = %s",
+                    (req['amount'], req['user_id']),
+                )
+
+            return _resp(200, {'ok': True})
+
         if action == 'review':
             if not user.get('is_admin'):
                 return _resp(403, {'error': 'Недостаточно прав'})
@@ -237,7 +325,13 @@ def handler(event: dict, context) -> dict:
                 f"JOIN {SCHEMA}.users u ON u.id = r.user_id "
                 f"WHERE r.status = 'pending' ORDER BY r.created_at LIMIT 100"
             )
-            return _resp(200, {'requests': cur.fetchall()})
+            topups = cur.fetchall()
+            cur.execute(
+                f"SELECT w.*, u.email, u.nickname FROM {SCHEMA}.withdrawals w "
+                f"JOIN {SCHEMA}.users u ON u.id = w.user_id "
+                f"WHERE w.status = 'pending' ORDER BY w.created_at LIMIT 100"
+            )
+            return _resp(200, {'requests': topups, 'withdrawals': cur.fetchall()})
 
         return _resp(400, {'error': 'Неизвестное действие'})
     finally:
