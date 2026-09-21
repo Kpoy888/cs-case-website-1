@@ -4,6 +4,7 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { BalanceProvider } from '@/hooks/use-balance';
+import { AuthProvider } from '@/hooks/use-auth';
 import ScrollToTop from '@/components/ScrollToTop';
 import Index from './pages/Index';
 import TopPage from './pages/TopPage';
@@ -19,6 +20,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      <AuthProvider>
       <BalanceProvider>
         <BrowserRouter>
           <ScrollToTop />
@@ -32,6 +34,7 @@ const App = () => (
           </Routes>
         </BrowserRouter>
       </BalanceProvider>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

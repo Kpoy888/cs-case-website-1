@@ -4,6 +4,8 @@ import CardPaymentDialog from '@/components/CardPaymentDialog';
 import { toast } from '@/hooks/use-toast';
 import { topUpMethods } from '@/data/nicedrop';
 import { formatMoney, useBalance } from '@/hooks/use-balance';
+import { useAuth } from '@/hooks/use-auth';
+import AuthDialog from '@/components/AuthDialog';
 
 const presets = [100, 500, 1000, 5000, 10000, 25000];
 
@@ -13,6 +15,8 @@ const TopUp = () => {
   const [amount, setAmount] = useState('5000');
   const [error, setError] = useState('');
   const [payOpen, setPayOpen] = useState(false);
+  const [authOpen, setAuthOpen] = useState(false);
+  const { user } = useAuth();
 
   const num = Number(amount.replace(/\s/g, ''));
   const bonus = num >= 2000 ? 0.25 : num >= 300 ? 0.15 : 0;
@@ -20,6 +24,10 @@ const TopUp = () => {
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) {
+      setAuthOpen(true);
+      return;
+    }
     if (!num || Number.isNaN(num)) {
       setError('Введите сумму пополнения');
       return;
@@ -148,7 +156,11 @@ const TopUp = () => {
             type="submit"
             className="mt-5 w-full rounded-full bg-primary py-3.5 font-display text-lg tracking-[.03em] text-primary-foreground shadow-[0_8px_26px_hsl(var(--primary)/0.28)] transition-transform hover:scale-[1.01]"
           >
-            {method === 'card' ? 'Получить реквизиты' : `Пополнить на ${formatMoney(total || 0)}`}
+            {!user
+              ? 'Войти и пополнить'
+              : method === 'card'
+                ? 'Получить реквизиты'
+                : `Пополнить на ${formatMoney(total || 0)}`}
           </button>
         </form>
 
@@ -202,6 +214,8 @@ const TopUp = () => {
           credit();
         }}
       />
+
+      <AuthDialog open={authOpen} initialMode="register" onClose={() => setAuthOpen(false)} />
     </section>
   );
 };

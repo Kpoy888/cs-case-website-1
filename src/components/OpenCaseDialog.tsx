@@ -6,16 +6,20 @@ import SpinReel from '@/components/SpinReel';
 import { CaseItem, rarityArt, rarityColor, rarityVar } from '@/data/nicedrop';
 import { skinArt } from '@/data/skins';
 import { formatMoney, useBalance } from '@/hooks/use-balance';
+import { useAuth } from '@/hooks/use-auth';
+import AuthDialog from '@/components/AuthDialog';
 
 interface Props {
   item: CaseItem | null;
   onClose: () => void;
 }
 
-type Phase = 'confirm' | 'spin' | 'result' | 'nomoney';
+type Phase = 'confirm' | 'spin' | 'result' | 'nomoney' | 'noauth';
 
 const OpenCaseDialog = ({ item, onClose }: Props) => {
   const { balance, spend, topUp } = useBalance();
+  const { user } = useAuth();
+  const [authOpen, setAuthOpen] = useState(false);
   const [phase, setPhase] = useState<Phase>('confirm');
   const [prize, setPrize] = useState<string>('');
   const [prizeValue, setPrizeValue] = useState(0);
@@ -31,6 +35,10 @@ const OpenCaseDialog = ({ item, onClose }: Props) => {
   if (!item) return null;
 
   const start = () => {
+    if (!user) {
+      setPhase('noauth');
+      return;
+    }
     if (balance < item.price) {
       setPhase('nomoney');
       return;
@@ -168,6 +176,24 @@ const OpenCaseDialog = ({ item, onClose }: Props) => {
             </div>
           )}
 
+          {phase === 'noauth' && (
+            <div className="mt-5 animate-fade-in">
+              <div className="flex items-center justify-center gap-2 text-primary">
+                <Icon name="Lock" size={18} />
+                <span className="text-[.9em] font-extrabold">Нужен аккаунт</span>
+              </div>
+              <p className="mt-2 text-[.8em] font-bold text-muted-foreground">
+                Войдите или зарегистрируйтесь — дропы и баланс сохранятся в профиле.
+              </p>
+              <button
+                onClick={() => setAuthOpen(true)}
+                className="mt-5 w-full rounded-full bg-primary px-6 py-3 font-display text-lg tracking-[.03em] text-primary-foreground"
+              >
+                Войти или создать аккаунт
+              </button>
+            </div>
+          )}
+
           {phase === 'nomoney' && (
             <div className="mt-5 animate-fade-in">
               <div className="flex items-center justify-center gap-2 text-hot">
@@ -189,6 +215,15 @@ const OpenCaseDialog = ({ item, onClose }: Props) => {
             </div>
           )}
         </div>
+
+        <AuthDialog
+          open={authOpen}
+          initialMode="register"
+          onClose={() => {
+            setAuthOpen(false);
+            setPhase('confirm');
+          }}
+        />
       </DialogContent>
     </Dialog>
   );

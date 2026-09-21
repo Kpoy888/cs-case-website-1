@@ -3,10 +3,14 @@ import { Link, NavLink, useNavigate } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
 import { navLinks } from '@/data/nicedrop';
 import { formatMoney, useBalance } from '@/hooks/use-balance';
+import { useAuth } from '@/hooks/use-auth';
+import AuthDialog from '@/components/AuthDialog';
 
 const Header = () => {
   const { balance } = useBalance();
+  const { user, logout } = useAuth();
   const [open, setOpen] = useState(false);
+  const [auth, setAuth] = useState<'login' | 'register' | null>(null);
   const navigate = useNavigate();
 
   return (
@@ -48,6 +52,30 @@ const Header = () => {
             <span className="hidden font-bold text-muted-foreground sm:inline">Баланс</span>
             <span className="tabular-nums">{formatMoney(balance)}</span>
           </div>
+
+          {user ? (
+            <div className="flex items-center gap-2">
+              <span className="hidden items-center gap-2 rounded-full border border-border bg-card px-3.5 py-2 text-[.85em] font-extrabold sm:flex">
+                <Icon name="User" size={15} className="text-primary" />
+                {user.nickname}
+              </span>
+              <button
+                onClick={logout}
+                className="rounded-full border border-border bg-card p-2 text-muted-foreground transition-colors hover:text-foreground"
+                aria-label="Выйти"
+              >
+                <Icon name="LogOut" size={17} />
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setAuth('register')}
+              className="rounded-full border border-border bg-card px-4 py-2.5 text-[.85em] font-extrabold text-foreground transition-colors hover:border-primary/40"
+            >
+              Войти
+            </button>
+          )}
+
           <button
             onClick={() => navigate('/topup')}
             className="rounded-full bg-primary px-5 py-2.5 font-display text-[.95em] tracking-[.03em] text-primary-foreground shadow-[0_8px_26px_hsl(var(--primary)/0.28)] transition-transform hover:scale-105"
@@ -80,6 +108,12 @@ const Header = () => {
           ))}
         </nav>
       )}
+
+      <AuthDialog
+        open={auth !== null}
+        initialMode={auth ?? 'login'}
+        onClose={() => setAuth(null)}
+      />
     </header>
   );
 };
