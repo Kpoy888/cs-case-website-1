@@ -211,6 +211,12 @@ const CardPaymentDialog = ({ open, amount, total, onClose, onSubmit }: Props) =>
               Реквизиты действительны {mm}:{ss}
             </div>
 
+            <p className="mt-2 rounded-xl border border-border bg-background p-3 text-[.72em] font-bold leading-[1.45] text-muted-foreground">
+              Перевод является добровольным пожертвованием автору сервиса и не возвращается.
+              Взамен начисляются виртуальные баллы для развлечения: это не азартная игра, а
+              выпавшие предметы не выводятся и не обмениваются на деньги.
+            </p>
+
             {error && (
               <p className="mt-2 flex items-center gap-1.5 text-[.78em] font-bold text-hot">
                 <Icon name="TriangleAlert" size={14} />

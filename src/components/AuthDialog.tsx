@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
 import { toast } from '@/hooks/use-toast';
@@ -21,6 +22,7 @@ const AuthDialog = ({ open, onClose, initialMode = 'login' }: Props) => {
   const [show, setShow] = useState(false);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [adult, setAdult] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -28,11 +30,18 @@ const AuthDialog = ({ open, onClose, initialMode = 'login' }: Props) => {
       setError('');
       setPassword('');
       setBusy(false);
+      setAdult(false);
     }
   }, [open, initialMode]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (mode === 'register' && !adult) {
+      setError('Подтвердите, что вам есть 18 лет');
+      return;
+    }
+
     setBusy(true);
     const err =
       mode === 'login'
@@ -128,9 +137,34 @@ const AuthDialog = ({ open, onClose, initialMode = 'login' }: Props) => {
           </div>
 
           {mode === 'register' && (
-            <p className="px-1 text-[.72em] font-bold text-muted-foreground">
-              Минимум 8 символов, обязательно буквы и цифры.
-            </p>
+            <>
+              <p className="px-1 text-[.72em] font-bold text-muted-foreground">
+                Минимум 8 символов, обязательно буквы и цифры.
+              </p>
+
+              <label className="flex cursor-pointer items-start gap-2.5 rounded-2xl border border-border bg-background p-3.5">
+                <input
+                  type="checkbox"
+                  checked={adult}
+                  onChange={(e) => {
+                    setAdult(e.target.checked);
+                    setError('');
+                  }}
+                  className="mt-0.5 h-4 w-4 shrink-0 accent-[hsl(var(--primary))]"
+                />
+                <span className="text-[.78em] font-bold leading-[1.45] text-muted-foreground">
+                  Мне есть 18 лет, я принимаю{' '}
+                  <Link
+                    to="/terms"
+                    target="_blank"
+                    className="text-primary underline underline-offset-2"
+                  >
+                    пользовательское соглашение
+                  </Link>{' '}
+                  и понимаю, что это развлекательный сервис.
+                </span>
+              </label>
+            </>
           )}
 
           {error && (
@@ -142,7 +176,7 @@ const AuthDialog = ({ open, onClose, initialMode = 'login' }: Props) => {
 
           <button
             type="submit"
-            disabled={busy}
+            disabled={busy || (mode === 'register' && !adult)}
             className="flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3 font-display text-[1.05em] tracking-[.03em] text-primary-foreground transition-transform hover:scale-[1.02] disabled:opacity-60"
           >
             {busy && <Icon name="LoaderCircle" size={16} className="animate-spin" />}

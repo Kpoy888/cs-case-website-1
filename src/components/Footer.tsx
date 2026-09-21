@@ -65,7 +65,9 @@ const Footer = () => (
 
     <div className="mt-6 flex flex-wrap items-center gap-4 border-t border-border pt-4 text-[.72em] font-bold text-muted-foreground">
       <span>© {new Date().getFullYear()} Nicedrop</span>
-      <span>Пользовательское соглашение</span>
+      <Link to="/terms" className="transition-colors hover:text-primary">
+        Пользовательское соглашение
+      </Link>
       <span>Политика конфиденциальности</span>
     </div>
   </footer>
